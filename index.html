@@ -3,34 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caça ao Tesouro</title>
+    <title>Missão Reciclagem</title>
     <style>
-        /* Variáveis de Cores para Modo Claro e Escuro */
+        /* Cores do Tema Claro (Padrão) */
         :root {
-            --bg-color: #f4f4f9;
-            --text-color: #333;
-            --card-bg: #ffffff;
-            --btn-bg: #ff9f43;
+            --bg: #e8f5e9;
+            --text: #1b5e20;
+            --card: #ffffff;
+            --btn-theme: #2e7d32;
+            --btn-action: #d32f2f;
         }
+        /* Cores do Tema Escuro */
         [data-theme="dark"] {
-            --bg-color: #1e1e24;
-            --text-color: #f4f4f9;
-            --card-bg: #2a2a32;
-            --btn-bg: #ee5253;
+            --bg: #121212;
+            --text: #e0e0e0;
+            --card: #1e1e1e;
+            --btn-theme: #4caf50;
+            --btn-action: #f44336;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            transition: 0.3s;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .menu {
+        .header {
             display: flex;
             justify-content: space-between;
             width: 100%;
@@ -40,101 +43,102 @@
         }
 
         .container {
-            background-color: var(--card-bg);
+            background-color: var(--card);
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 500px;
             width: 100%;
         }
 
-        /* Container do Mapa */
-        .map-box {
+        /* Área do Caminhão */
+        .truck-box {
             position: relative;
             display: inline-block;
             margin-top: 15px;
-            border: 5px solid #8b5a2b;
-            border-radius: 8px;
-            background-color: #ddd;
+            border: 4px solid var(--btn-theme);
+            border-radius: 12px;
+            overflow: hidden;
         }
 
-        .map-box img {
+        .truck-box img {
             display: block;
             width: 100%;
             max-width: 450px;
             height: auto;
         }
 
-        /* Botão Oculto do Tesouro (Fica exatamente em cima da bússola/rosa dos ventos) */
-        .treasure-btn {
+        /* Alvo invisível do clique na caçamba traseira */
+        .recycle-target {
             position: absolute;
-            top: 28%;    /* Ajusta a posição vertical */
-            left: 20%;   /* Ajusta a posição horizontal */
-            width: 55px;  /* Área clicável */
-            height: 55px;
+            top: 25%;    
+            left: 65%;   
+            width: 110px; 
+            height: 120px;
             background: transparent;
             border: none;
             cursor: pointer;
             outline: none;
         }
 
-        /* Estilo dos Botões do Sistema */
+        /* Estilo dos Botões Principais */
         .btn {
             padding: 10px 20px;
             font-size: 15px;
             font-weight: bold;
             border: none;
             border-radius: 6px;
-            background-color: var(--btn-bg);
             color: white;
             cursor: pointer;
             transition: 0.2s;
         }
         .btn:hover { opacity: 0.9; }
+        
+        #themeBtn { background-color: var(--btn-theme); }
+        #actionBtn { background-color: var(--btn-action); margin-top: 15px; }
 
-        #resetBtn {
-            margin-top: 15px;
-            display: none;
-            background-color: #10ac84;
-        }
-
-        #status {
-            margin-top: 15px;
-            font-size: 18px;
+        #score-board {
+            font-size: 22px;
+            margin: 15px 0;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="menu">
-        <h2>Caça ao Tesouro 🏴‍☠️</h2>
+    <div class="header">
+        <h2>Reciclagem Ativa ♻️</h2>
+        <!-- BOTÃO 1: Alternador de Tema -->
         <button class="btn" id="themeBtn">Modo Escuro</button>
     </div>
 
     <div class="container">
-        <p id="status">Dica: O tesouro está escondido perto do instrumento de navegação marítima!</p>
+        <p id="instruction">Toque na <strong>caçamba traseira</strong> do caminhão para colocar o material reciclável!</p>
         
-        <div class="map-box">
-            <!-- Imagem real de um mapa antigo hospedada na Wikimedia/Pixabay -->
-            <img src="https://wikimedia.org" alt="Mapa do Tesouro">
-            
-            <!-- Botão invisível do alvo funcional -->
-            <button class="treasure-btn" id="treasureTarget"></button>
+        <div id="score-board">Lixo Reciclado: <span id="score">0</span> kg</div>
+
+        <div class="truck-box">
+            <!-- Imagem real de um caminhão verde de lixo -->
+            <img src="https://unsplash.com" alt="Caminhão de Lixo Verde">
+            <button class="recycle-target" id="truckTarget"></button>
         </div>
 
         <br>
-        <button class="btn" id="resetBtn">Jogar Novamente</button>
+        <!-- BOTÃO 2: Ação funcional de esvaziar/reiniciar -->
+        <button class="btn" id="actionBtn">Esvaziar Caçamba</button>
     </div>
 
     <script>
         const themeBtn = document.getElementById('themeBtn');
-        const treasureTarget = document.getElementById('treasureTarget');
-        const status = document.getElementById('status');
-        const resetBtn = document.getElementById('resetBtn');
+        const truckTarget = document.getElementById('truckTarget');
+        const actionBtn = document.getElementById('actionBtn');
+        const scoreDisplay = document.getElementById('score');
+        const instruction = document.getElementById('instruction');
+        
+        let count = 0;
 
-        // Código Funcional 1: Alternador de Modo Claro e Escuro
+        // Funcionamento do BOTÃO 1: Modo Claro e Escuro
         themeBtn.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             if (currentTheme === 'dark') {
@@ -146,18 +150,18 @@
             }
         });
 
-        // Código Funcional 2: Clique para Achar o Tesouro
-        treasureTarget.addEventListener('click', () => {
-            status.textContent = '🎉 Incrível! Você clicou na bússola antiga e encontrou o Baú de Ouro! 💰👑';
-            status.style.color = '#10ac84';
-            resetBtn.style.display = 'inline-block'; // Mostra botão de reiniciar
+        // Funcionamento do Clique na Imagem: Adiciona lixo
+        truckTarget.addEventListener('click', () => {
+            count += 5; // Adiciona de 5 em 5 quilos
+            scoreDisplay.textContent = count;
+            instruction.innerHTML = '🚚 Coleta realizada com sucesso! Continue enchendo o caminhão.';
         });
 
-        // Código Funcional 3: Botão de Reiniciar
-        resetBtn.addEventListener('click', () => {
-            status.textContent = 'Dica: O tesouro está escondido perto do instrumento de navegação marítima!';
-            status.style.color = '';
-            resetBtn.style.display = 'none';
+        // Funcionamento do BOTÃO 2: Esvaziar e zerar o jogo
+        actionBtn.addEventListener('click', () => {
+            count = 0;
+            scoreDisplay.textContent = count;
+            instruction.innerHTML = '♻️ O caminhão foi esvaziado na usina de reciclagem. Pronto para começar de novo!';
         });
     </script>
 </body>
