@@ -3,37 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missão Reciclagem</title>
+    <title>Eco Reciclagem</title>
     <style>
         /* Cores do Tema Claro (Padrão) */
         :root {
-            --bg: #e8f5e9;
-            --text: #1b5e20;
-            --card: #ffffff;
+            --bg-color: #e8f5e9;
+            --text-color: #1b5e20;
+            --card-bg: #ffffff;
             --btn-theme: #2e7d32;
             --btn-action: #d32f2f;
         }
+
         /* Cores do Tema Escuro */
         [data-theme="dark"] {
-            --bg: #121212;
-            --text: #e0e0e0;
-            --card: #1e1e1e;
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
             --btn-theme: #4caf50;
             --btn-action: #f44336;
         }
 
         body {
             font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            margin: 0;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        .header {
+        header {
             display: flex;
             justify-content: space-between;
             width: 100%;
@@ -43,63 +45,66 @@
         }
 
         .container {
-            background-color: var(--card);
-            padding: 20px;
+            background-color: var(--card-bg);
+            padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 500px;
             width: 100%;
+            box-sizing: border-box;
         }
 
-        /* Área do Caminhão */
-        .truck-box {
+        /* Moldura da Imagem */
+        .image-box {
             position: relative;
             display: inline-block;
             margin-top: 15px;
             border: 4px solid var(--btn-theme);
             border-radius: 12px;
             overflow: hidden;
+            background-color: #eaeaea;
         }
 
-        .truck-box img {
+        .image-box img {
             display: block;
             width: 100%;
             max-width: 450px;
             height: auto;
         }
 
-        /* Alvo invisível do clique na caçamba traseira */
-        .recycle-target {
+        /* Alvo de clique oculto na caçamba do caminhão */
+        .click-target {
             position: absolute;
             top: 25%;    
             left: 65%;   
-            width: 110px; 
-            height: 120px;
+            width: 25%; 
+            height: 35%;
             background: transparent;
             border: none;
             cursor: pointer;
             outline: none;
         }
 
-        /* Estilo dos Botões Principais */
+        /* Estilo Geral dos Botões Visíveis */
         .btn {
             padding: 10px 20px;
             font-size: 15px;
             font-weight: bold;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
             cursor: pointer;
-            transition: 0.2s;
+            transition: transform 0.1s, opacity 0.2s;
         }
         .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.95); }
         
         #themeBtn { background-color: var(--btn-theme); }
-        #actionBtn { background-color: var(--btn-action); margin-top: 15px; }
+        #actionBtn { background-color: var(--btn-action); margin-top: 20px; width: 100%; }
 
         #score-board {
-            font-size: 22px;
+            font-size: 24px;
             margin: 15px 0;
             font-weight: bold;
         }
@@ -107,26 +112,26 @@
 </head>
 <body>
 
-    <div class="header">
-        <h2>Reciclagem Ativa ♻️</h2>
-        <!-- BOTÃO 1: Alternador de Tema -->
+    <header>
+        <h2>Eco Reciclagem ♻️</h2>
+        <!-- BOTÃO 1: Alternar entre claro e escuro -->
         <button class="btn" id="themeBtn">Modo Escuro</button>
-    </div>
+    </header>
 
     <div class="container">
-        <p id="instruction">Toque na <strong>caçamba traseira</strong> do caminhão para colocar o material reciclável!</p>
+        <p id="instruction">Toque na <strong>caçamba traseira</strong> do caminhão verde para carregar os recicláveis!</p>
         
-        <div id="score-board">Lixo Reciclado: <span id="score">0</span> kg</div>
+        <div id="score-board">Coletado: <span id="score">0</span> kg</div>
 
-        <div class="truck-box">
-            <!-- Imagem real de um caminhão verde de lixo -->
-            <img src="https://unsplash.com" alt="Caminhão de Lixo Verde">
-            <button class="recycle-target" id="truckTarget"></button>
+        <div class="image-box">
+            <!-- Imagem real e estável de um caminhão verde de reciclagem -->
+            <img src="https://unsplash.com" alt="Caminhão Verde">
+            <!-- Botão invisível em cima da traseira do caminhão -->
+            <button class="click-target" id="truckTarget"></button>
         </div>
 
-        <br>
-        <!-- BOTÃO 2: Ação funcional de esvaziar/reiniciar -->
-        <button class="btn" id="actionBtn">Esvaziar Caçamba</button>
+        <!-- BOTÃO 2: Ação de esvaziar a caçamba e zerar os pontos -->
+        <button class="btn" id="actionBtn">Descarregar na Usina</button>
     </div>
 
     <script>
@@ -136,9 +141,9 @@
         const scoreDisplay = document.getElementById('score');
         const instruction = document.getElementById('instruction');
         
-        let count = 0;
+        let totalKg = 0;
 
-        // Funcionamento do BOTÃO 1: Modo Claro e Escuro
+        // Lógica do BOTÃO 1: Modo Claro e Escuro
         themeBtn.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             if (currentTheme === 'dark') {
@@ -150,18 +155,22 @@
             }
         });
 
-        // Funcionamento do Clique na Imagem: Adiciona lixo
+        // Lógica do Clique Oculto: Coleta materiais ao clicar na caçamba
         truckTarget.addEventListener('click', () => {
-            count += 5; // Adiciona de 5 em 5 quilos
-            scoreDisplay.textContent = count;
-            instruction.innerHTML = '🚚 Coleta realizada com sucesso! Continue enchendo o caminhão.';
+            totalKg += 10; // Soma 10kg por clique
+            scoreDisplay.textContent = totalKg;
+            instruction.innerHTML = '🌱 Ótimo trabalho! O caminhão está acumulando materiais.';
         });
 
-        // Funcionamento do BOTÃO 2: Esvaziar e zerar o jogo
+        // Lógica do BOTÃO 2: Reseta o placar simulando a entrega na usina
         actionBtn.addEventListener('click', () => {
-            count = 0;
-            scoreDisplay.textContent = count;
-            instruction.innerHTML = '♻️ O caminhão foi esvaziado na usina de reciclagem. Pronto para começar de novo!';
+            if (totalKg === 0) {
+                instruction.innerHTML = '❌ O caminhão já está vazio! Clique primeiro na caçamba.';
+                return;
+            }
+            totalKg = 0;
+            scoreDisplay.textContent = totalKg;
+            instruction.innerHTML = '🚛 Materiais entregues! A cidade agradece. Pronto para nova coleta.';
         });
     </script>
 </body>
