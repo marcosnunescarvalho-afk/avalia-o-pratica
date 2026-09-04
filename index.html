@@ -73,13 +73,13 @@
             height: auto;
         }
 
-        /* Alvo de clique oculto na caçamba do caminhão */
+        /* Alvo de clique oculto na caçamba traseira do caminhão laranja/cinza */
         .click-target {
             position: absolute;
             top: 25%;    
-            left: 65%;   
-            width: 25%; 
-            height: 35%;
+            left: 10%;   
+            width: 35%; 
+            height: 50%;
             background: transparent;
             border: none;
             cursor: pointer;
@@ -119,13 +119,13 @@
     </header>
 
     <div class="container">
-        <p id="instruction">Toque na <strong>caçamba traseira</strong> do caminhão verde para carregar os recicláveis!</p>
+        <p id="instruction">Toque na <strong>caçamba traseira</strong> do caminhão de coleta para carregar os recicláveis!</p>
         
         <div id="score-board">Coletado: <span id="score">0</span> kg</div>
 
         <div class="image-box">
-            <!-- Imagem real e estável de um caminhão verde de reciclagem -->
-            <img src="https://unsplash.com" alt="Caminhão Verde">
+            <!-- Imagem estável e de alta compatibilidade da Wikimedia Commons -->
+            <img src="https://wikimedia.org" alt="Caminhão de Reciclagem">
             <!-- Botão invisível em cima da traseira do caminhão -->
             <button class="click-target" id="truckTarget"></button>
         </div>
