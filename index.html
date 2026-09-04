@@ -5,168 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caça ao Tesouro</title>
     <style>
-        /* Estilos do Tema Claro (Padrão) */
-        :root {
-            --bg-color: #f0f2f5;
-            --text-color: #333;
-            --card-bg: #ffffff;
-            --btn-bg: #007bff;
-            --btn-text: #fff;
-        }
-
-        /* Estilos do Tema Escuro */
-        [data-theme="dark"] {
-            --bg-color: #18191a;
-            --text-color: #e4e6eb;
-            --card-bg: #242526;
-            --btn-bg: #2f80ed;
-            --btn-text: #fff;
-        }
+        /* Variáveis de Cores para os Temas */
+        :root { --bg: #f0f2f5; --text: #333; --card: #fff; --btn: #007bff; }
+        [data-theme="dark"] { --bg: #18191a; --text: #e4e6eb; --card: #242526; --btn: #2f80ed; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
+            font-family: sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        header {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .theme-toggle {
-            padding: 10px 15px;
-            cursor: pointer;
-            border: none;
-            border-radius: 20px;
-            background-color: var(--text-color);
-            color: var(--bg-color);
-            font-weight: bold;
+            padding: 20px;
             transition: 0.3s;
         }
-
         .container {
-            background-color: var(--card-bg);
+            background-color: var(--card);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
-            max-width: 600px;
-            width: 100%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
-        /* Área do Mapa do Tesouro */
         .map-container {
             position: relative;
             display: inline-block;
-            margin-top: 15px;
             border: 4px solid #8b5a2b;
             border-radius: 8px;
-            overflow: hidden;
         }
-
         .map-container img {
             display: block;
             max-width: 100%;
-            height: auto;
+            height: 350px; /* Tamanho fixo para facilitar o clique */
         }
-
-        /* Botão invisível do Tesouro Escondido */
+        /* Botão do Tesouro (Invisível) */
         .treasure-target {
             position: absolute;
-            /* Defina a posição do tesouro na imagem aqui: */
-            top: 45%; 
-            left: 60%;
-            width: 50px;
-            height: 50px;
+            top: 40%; /* Posição vertical */
+            left: 55%; /* Posição horizontal */
+            width: 60px;
+            height: 60px;
             background: transparent;
             border: none;
             cursor: pointer;
-            outline: none;
         }
-
-        /* Botão de Feedback / Reiniciar */
-        .game-btn {
-            margin-top: 20px;
-            padding: 12px 24px;
-            font-size: 16px;
+        .btn-game {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: var(--btn);
+            color: white;
             border: none;
-            border-radius: 6px;
-            background-color: var(--btn-bg);
-            color: var(--btn-text);
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            display: none; /* Fica escondido até achar o tesouro */
         }
-
-        #status-message {
-            margin-top: 15px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+        #resetBtn { display: none; }
     </style>
 </head>
 <body>
 
-    <header>
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 10px;">
         <h1>Caça ao Tesouro 🏴‍☠️</h1>
-        <button class="theme-toggle" id="themeBtn">Modo Escuro</button>
-    </header>
+        <button class="btn-game" id="themeBtn">Modo Escuro</button>
+    </div>
 
     <div class="container">
-        <p>Clique na imagem para encontrar o baú de ouro escondido!</p>
+        <p id="status">Clique no mapa para achar o baú escondido!</p>
         
         <div class="map-container">
-            <!-- Imagem ilustrativa de um mapa/paisagem. Você pode trocar o link pela sua própria imagem -->
-            <img src="https://unsplash.com" alt="Mapa do Tesouro">
+            <!-- Imagem real de um mapa do tesouro antiga -->
+            <img src="https://unsplash.com" alt="Mapa">
             
-            <!-- O botão funcional oculto que o jogador precisa clicar -->
-            <button class="treasure-target" id="treasure" title="O que é isso?"></button>
+            <!-- Alvo invisível do clique -->
+            <button class="treasure-target" id="treasure"></button>
         </div>
-
-        <div id="status-message">Procure com atenção...</div>
-        <button class="game-btn" id="resetBtn">Jogar Novamente</button>
+        <br>
+        <button class="btn-game" id="resetBtn">Jogar Novamente</button>
     </div>
 
     <script>
         const themeBtn = document.getElementById('themeBtn');
         const treasure = document.getElementById('treasure');
-        const statusMessage = document.getElementById('status-message');
+        const status = document.getElementById('status');
         const resetBtn = document.getElementById('resetBtn');
 
-        // Lógica do Modo Escuro / Claro
+        // Alternar Modo Claro e Escuro
         themeBtn.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                themeBtn.textContent = 'Modo Escuro';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                themeBtn.textContent = 'Modo Claro';
-            }
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            themeBtn.textContent = isDark ? 'Modo Escuro' : 'Modo Claro';
         });
 
-        // Lógica do Botão Funcional (Achar o Tesouro)
+        // Evento de achar o tesouro
         treasure.addEventListener('click', () => {
-            statusMessage.textContent = '🎉 Parabéns! Você encontrou o tesouro sagrado! 💰';
-            statusMessage.style.color = '#27ae60';
-            resetBtn.style.display = 'inline-block'; // Mostra o botão de reiniciar
+            status.textContent = '🎉 Sensacional! Você encontrou o baú de ouro! 💰';
+            status.style.color = '#27ae60';
+            resetBtn.style.display = 'inline-block';
         });
 
-        // Lógica para Reiniciar o Jogo
+        // Evento de reiniciar
         resetBtn.addEventListener('click', () => {
-            statusMessage.textContent = 'Procure com atenção...';
-            statusMessage.style.color = '';
+            status.textContent = 'Clique no mapa para achar o baú escondido!';
+            status.style.color = '';
             resetBtn.style.display = 'none';
         });
     </script>
